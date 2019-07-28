@@ -15,7 +15,7 @@ public class HomeController {
     @Value("${locationiq.keys}")
     private String[] keys;
 
-    @GetMapping(value = "/seonsor-data", produces = MediaType.APPLICATION_JSON_VALUE) 
+    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE) 
     public List<Wrapper> get() {
 	
 	List<Wrapper> stations = new ArrayList<>();
