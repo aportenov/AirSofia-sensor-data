@@ -5,17 +5,20 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
+
+@CrossOrigin(origins = "http://localhost:8081/")
 @RestController
 public class HomeController {
 
     @Value("${locationiq.keys}")
     private String[] keys;
 
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE) 
+    @GetMapping(value = "/data", produces = MediaType.APPLICATION_JSON_VALUE) 
     public List<Wrapper> get() {
 	
 	List<Wrapper> stations = new ArrayList<>();
