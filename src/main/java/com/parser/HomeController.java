@@ -16,6 +16,14 @@ import reactor.core.publisher.Flux;
 @RestController
 public class HomeController {
 
+    private static final String LUFTDATEN_URL = "http://api.luftdaten.info/static/v1/data.json";
+    private static final String BG = "BG";
+    private static final String LOCATIONIQ_URL =  "https://eu1.locationiq.com/v1/reverse.php?key=5c78fb00c549f2&lat=%sd&lon=%s&format=json";
+    private static final String TOWN_INDEX = "Sofia";
+    private static final String COMMA_SEPARATOR = ",";
+    
+    
+    
     @Value("${locationiq.keys}")
     private String[] keys;
 
@@ -28,15 +36,17 @@ public class HomeController {
     @GetMapping(value = "/data", produces = MediaType.APPLICATION_JSON_VALUE)
     public Flux<Wrapper> get() {
 
-	return WebClient.create("http://api.luftdaten.info/static/v1/data.json")
+	return WebClient.create(LUFTDATEN_URL)
 		.get()
-		.accept(MediaType.APPLICATION_JSON).retrieve().bodyToFlux(Wrapper.class)
-		.filter(location -> location.getLocation().getCountry().equalsIgnoreCase("BG"))
+		.accept(MediaType.APPLICATION_JSON)
+		.retrieve()
+		.bodyToFlux(Wrapper.class)
+		.filter(location -> location.getLocation().getCountry().equalsIgnoreCase(BG))
 		.limitRequest(10)
 		.delayElements(Duration.ofMillis(1000))
 		.doOnNext(wrapper -> {
 		    WebClient.create(String.format(
-			    "https://eu1.locationiq.com/v1/reverse.php?key=5c78fb00c549f2&lat=%sd&lon=%s&format=json",
+			    LOCATIONIQ_URL,
 			    wrapper.getLocation().getLatitude(), wrapper.getLocation().getLongitude()))
 		    .get()
 			    .accept(MediaType.APPLICATION_JSON_UTF8)
@@ -45,11 +55,11 @@ public class HomeController {
 			    .subscribe(lw -> {
 
 				String displayName = lw.getDisplayName();
-				if (displayName.indexOf("Sofia") > -1) {
+				if (displayName.indexOf(TOWN_INDEX) > -1) {
 
-				    int startIndex = displayName.indexOf(",");
+				    int startIndex = displayName.indexOf(COMMA_SEPARATOR);
 				    wrapper.setName(displayName
-					    .substring(startIndex + 1, displayName.indexOf(",", startIndex + 1))
+					    .substring(startIndex + 1, displayName.indexOf(COMMA_SEPARATOR, startIndex + 1))
 					    .trim());
 
 				}
